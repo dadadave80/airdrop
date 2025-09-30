@@ -1,6 +1,15 @@
 {
   "name": "airdrop",
   "packageManager": "yarn@4.10.3",
+  "main": "index.js",
+  "type": "module",
+  "license": "MIT",
+  "scripts": {
+    "keygen": "tsx ./keygen.ts",
+    "airdrop": "tsx ./airdrop.ts",
+    "transfer": "tsx ./transfer.ts",
+    "enroll": "tsx ./enroll.ts"
+  },
   "dependencies": {
     "@solana-program/system": "^0.8.0",
     "@solana/kit": "^3.0.3",
