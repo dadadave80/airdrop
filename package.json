@@ -8,7 +8,8 @@
     "keygen": "tsx ./keygen.ts",
     "airdrop": "tsx ./airdrop.ts",
     "transfer": "tsx ./transfer.ts",
-    "enroll": "tsx ./enroll.ts"
+    "enroll": "tsx ./enroll.ts",
+    "convert": "tsx ./convert.ts"
   },
   "dependencies": {
     "@solana-program/system": "^0.8.0",
