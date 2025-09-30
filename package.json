@@ -1,4 +1,12 @@
 {
   "name": "airdrop",
-  "packageManager": "yarn@4.10.3"
+  "packageManager": "yarn@4.10.3",
+  "dependencies": {
+    "@solana-program/system": "^0.8.0",
+    "@solana/kit": "^3.0.3",
+    "@types/node": "^24.6.0",
+    "bs58": "^6.0.0",
+    "typescript": "^5.9.2",
+    "ws": "^8.18.3"
+  }
 }
