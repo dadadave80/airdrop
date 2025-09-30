@@ -17,7 +17,7 @@ node_modules
 .pnp.*
 
 # Dev wallet
-dev-wallet.json
+*wallet.json
 
 # Environment variables
 .env
