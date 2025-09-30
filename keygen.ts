@@ -1,3 +1,4 @@
+import { writeFile } from "fs/promises";
 import { createKeyPairSignerFromBytes } from "@solana/kit";
 
 const keypair = await crypto.subtle.generateKey({ name: "Ed25519" }, true, [
@@ -17,6 +18,15 @@ const keypairBytes = new Uint8Array([...privateKeyBytes, ...publicKeyBytes]);
 const signer = await createKeyPairSignerFromBytes(keypairBytes);
 
 console.log(`You have generated a new Solana wallet: ${signer.address}`);
-console.log(
-  `To save your wallet, copy and paste the following into a JSON file: [${keypairBytes}]`
-);
+console.log(`Your wallet: [${keypairBytes}]`);
+
+async function createFile(path: string, content: string) {
+  try {
+    await writeFile(path, content, { flag: "w" });
+    console.log(`Wallet has been saved to ${path}`);
+  } catch (err) {
+    console.error("Error saving your wallet:", err);
+  }
+}
+
+createFile("./dev-wallet.json", `[${keypairBytes}]`);
