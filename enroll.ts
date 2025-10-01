@@ -25,20 +25,18 @@ import {
 import wallet from "./Turbin3-wallet.json";
 
 const MPL_CORE_PROGRAM = address(
-  "CoREENxT6tW1HoK8ypY1SxRMZTcVPm7R94rH4PZNhX7d"
+  "CoREENxT6tW1HoK8ypY1SxRMZTcVPm7R94rH4PZNhX7d",
 );
 const PROGRAM_ADDRESS = address("TRBZyQHB3m68FGeVsqTK39Wm4xejadjVhP5MAZaKWDM");
 const SYSTEM_PROGRAM = address("11111111111111111111111111111111");
 const COLLECTION = address("5ebsp5RChCGK7ssRZMVMufgVZhd2kFbNaotcZ5UvytN2");
-const AUTHORITY = address("AHYic562KhgtAEkb1rSesqS87dFYRcfXb4WwWus3Zc9C");
 
-console.log("Reached here");
-const keypair = await createKeyPairSignerFromBytes(wallet);
+const keypair = await createKeyPairSignerFromBytes(new Uint8Array(wallet));
 
 // Create an rpc connection
 const rpc = createSolanaRpc(devnet("https://api.devnet.solana.com"));
 const rpcSubscriptions = createSolanaRpcSubscriptions(
-  devnet("ws://api.devnet.solana.com")
+  devnet("ws://api.devnet.solana.com"),
 );
 
 const addressEncoder = getAddressEncoder();
@@ -47,13 +45,11 @@ const accountSeeds = [
   Buffer.from("prereqs"),
   addressEncoder.encode(keypair.address),
 ];
+
 const [account, _bump] = await getProgramDerivedAddress({
   programAddress: PROGRAM_ADDRESS,
   seeds: accountSeeds,
 });
-
-// Generate mint keypair for the NFT
-const mintKeyPair = await generateKeyPairSigner();
 
 // Execute the initialize transaction
 const initializeIx = getInitializeInstruction({
@@ -69,11 +65,11 @@ const transactionMessageInit = pipe(
   createTransactionMessage({ version: 0 }),
   (tx) => setTransactionMessageFeePayerSigner(keypair, tx),
   (tx) => setTransactionMessageLifetimeUsingBlockhash(latestBlockhash, tx),
-  (tx) => appendTransactionMessageInstructions([initializeIx], tx)
+  (tx) => appendTransactionMessageInstructions([initializeIx], tx),
 );
 
 const signedTxInit = await signTransactionMessageWithSigners(
-  transactionMessageInit
+  transactionMessageInit,
 );
 assertIsTransactionWithinSizeLimit(signedTxInit);
 
@@ -95,13 +91,26 @@ https://explorer.solana.com/tx/${signatureInit}?cluster=devnet`);
   console.error(`Oops, something went wrong: ${e}`);
 }
 
+// Create the PDA for authority account
+const authoritySeeds = [
+  Buffer.from("collection"),
+  addressEncoder.encode(COLLECTION),
+];
+const [authority, _authorityBump] = await getProgramDerivedAddress({
+  programAddress: PROGRAM_ADDRESS,
+  seeds: authoritySeeds,
+});
+
+// Generate mint keypair for the NFT
+const mintKeyPair = await generateKeyPairSigner();
+
 // Execute the submitTs transaction
 const submitIx = getSubmitTsInstruction({
   user: keypair,
   account,
   mint: mintKeyPair,
   collection: COLLECTION,
-  authority: AUTHORITY,
+  authority,
   mplCoreProgram: MPL_CORE_PROGRAM,
   systemProgram: SYSTEM_PROGRAM,
 });
@@ -111,11 +120,11 @@ const transactionMessageSubmit = pipe(
   (tx) => setTransactionMessageFeePayerSigner(keypair, tx),
   (tx) => setTransactionMessageLifetimeUsingBlockhash(latestBlockhash, tx),
   (tx) => appendTransactionMessageInstructions([submitIx], tx),
-  (tx) => addSignersToTransactionMessage([mintKeyPair], tx) // Add mint as additional signer after appending instructions
+  (tx) => addSignersToTransactionMessage([mintKeyPair], tx), // Add mint as additional signer after appending instructions
 );
 
 const signedTxSubmit = await signTransactionMessageWithSigners(
-  transactionMessageSubmit
+  transactionMessageSubmit,
 );
 assertIsTransactionWithinSizeLimit(signedTxSubmit);
 
